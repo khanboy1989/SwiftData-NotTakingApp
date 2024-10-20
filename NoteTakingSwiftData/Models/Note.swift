@@ -1,0 +1,23 @@
+//
+//  Notes.swift
+//  NoteTakingSwiftData
+//
+//  Created by Serhan Khan on 21/09/2024.
+//
+
+import Foundation
+import SwiftData
+
+@Model class Note: Identifiable {
+    @Attribute(.unique) var id: UUID
+    var content: String
+    var isDone: Bool
+    var dateAdded: Date
+    
+    init(content: String, isDone: Bool, dateAdded: Date = Date()) {
+        self.id = UUID()
+        self.content = content
+        self.isDone = isDone
+        self.dateAdded = dateAdded
+    }
+}
