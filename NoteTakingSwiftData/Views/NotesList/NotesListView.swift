@@ -11,9 +11,12 @@ import SwiftData
 struct NotesListView: View {
     @State private var isPresentingModal: Bool = false
     @State private var newItem: String = ""
+    @State private var selectedCategory: CategoryType?
+
     @Query(FetchDescriptor(predicate: #Predicate {( note: Note ) in note.isDone == false }, sortBy: [SortDescriptor(\.dateAdded, order: .reverse)]), animation: .snappy) private var todoNotes: [Note] = []
     
     @Query(FetchDescriptor(predicate: #Predicate {( note: Note ) in note.isDone == true }, sortBy: [SortDescriptor(\.dateAdded, order: .reverse)]), animation: .snappy) private var doneNotes: [Note] = []
+    
     
     @Environment(\.modelContext) private var context
     
@@ -24,7 +27,13 @@ struct NotesListView: View {
                     DisclosureGroup("To Do") {
                         ForEach(todoNotes, id:\.id) { note in
                             HStack(alignment: .center) {
-                                Text(note.content)
+                                VStack {
+                                    Text(note.content)
+                                    let _ = print(note.category?.categoryTypeRawValue)
+                                    if let category = note.category?.categoryTypeRawValue {
+                                        Text(category)
+                                    }
+                                }
                                 Spacer()
                                 Text("\(note.dateAdded.formatDate())")
                             }
@@ -84,10 +93,12 @@ struct NotesListView: View {
                 }
             }
             .sheet(isPresented: $isPresentingModal) {
-                AddItemModalView(newItem: $newItem) {
+                AddItemModalView(newItem: $newItem, selectedCategory: $selectedCategory) {
                     // Action to add new item to the list
-                    if !newItem.isEmpty {
-                        context.insert(Note(content: newItem, isDone: false))
+                    if !newItem.isEmpty && selectedCategory != nil {
+                        let note = Note(content: newItem, isDone: false)
+                        let category = Category(categoryType: selectedCategory!, belongsTo: note)
+                        context.insert(category)
                         newItem = ""
                         do {
                             try context.save()
@@ -118,8 +129,9 @@ struct NotesListView: View {
 
 struct AddItemModalView: View {
     @Binding var newItem: String
+    @Binding var selectedCategory: CategoryType?
     var onSave: () -> Void // Closure to handle save action
-    
+
     var body: some View {
         NavigationView {
             VStack {
@@ -127,7 +139,17 @@ struct AddItemModalView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
                 
+                Picker("Select Category", selection: $selectedCategory) {
+                    ForEach(CategoryType.allCases) { category in
+                        Text(category.rawValue.capitalized)
+                            .tag(category)
+                    }
+                }
+                .pickerStyle(.wheel) // Style as desired
+                .padding()
+                
                 Spacer()
+                
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
