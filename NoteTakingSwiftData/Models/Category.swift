@@ -19,8 +19,9 @@ enum CategoryType: String, CaseIterable, Identifiable {
 
 @Model class Category: Identifiable {
     @Attribute(.unique) var id: UUID
-    var categoryTypeRawValue: String
-    var belongsTo: Note
+    var categoryTypeRawValue: String    
+    @Relationship var belongsTo: Note?
+
     init(categoryType: CategoryType, belongsTo: Note? = nil) {
         self.id = UUID()
         self.belongsTo = belongsTo

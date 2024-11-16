@@ -11,12 +11,11 @@ import SwiftData
 struct NotesListView: View {
     @State private var isPresentingModal: Bool = false
     @State private var newItem: String = ""
-    @State private var selectedCategory: CategoryType?
-
-    @Query(FetchDescriptor(predicate: #Predicate {( note: Note ) in note.isDone == false }, sortBy: [SortDescriptor(\.dateAdded, order: .reverse)]), animation: .snappy) private var todoNotes: [Note] = []
+    @State private var selectedCategory: CategoryType = .work
     
-    @Query(FetchDescriptor(predicate: #Predicate {( note: Note ) in note.isDone == true }, sortBy: [SortDescriptor(\.dateAdded, order: .reverse)]), animation: .snappy) private var doneNotes: [Note] = []
+    @Query(FetchDescriptor(predicate: #Predicate {( note: Note ) in note.isDone == false }, sortBy: [SortDescriptor(\.dateAdded, order: .reverse)]), animation: .snappy) private var todoNotes: [Note]
     
+    @Query(FetchDescriptor(predicate: #Predicate {( note: Note ) in note.isDone == true }, sortBy: [SortDescriptor(\.dateAdded, order: .reverse)]), animation: .snappy) private var doneNotes: [Note]
     
     @Environment(\.modelContext) private var context
     
@@ -24,63 +23,17 @@ struct NotesListView: View {
         NavigationStack {
             VStack {
                 List {
-                    DisclosureGroup("To Do") {
-                        ForEach(todoNotes, id:\.id) { note in
-                            HStack(alignment: .center) {
-                                VStack {
-                                    Text(note.content)
-                                    let _ = print(note.category?.categoryTypeRawValue)
-                                    if let category = note.category?.categoryTypeRawValue {
-                                        Text(category)
-                                    }
-                                }
-                                Spacer()
-                                Text("\(note.dateAdded.formatDate())")
-                            }
-                            
-                            .swipeActions {
-                                Button { // Delete
-                                    context.delete(note)
-                                    try? context.save()
-                                } label: {
-                                    Image(systemName: "trash.fill")
-                                }
-                                .tint(.red)
-                                
-                                
-                                Button { // Mark as done
-                                    note.isDone.toggle()
-                                } label: {
-                                    Image(systemName: "checkmark")
-                                }
-                                .tint(.green)
-                                
-                            }
+                    // Section for To-Do Notes
+                    Section(header: Text("To Do")) {
+                        ForEach(todoNotes, id: \.id) { note in
+                            NoteRowView(note: note, context: context)
                         }
                     }
                     
-                    DisclosureGroup("Done") {
-                        ForEach(doneNotes, id:\.id) { note in
-                            HStack(alignment: .center) {
-                                Text(note.content)
-                                Spacer()
-                                Text("\(note.dateAdded.formatDate())")
-                            }
-                            .swipeActions {
-                                Button {
-                                    context.delete(note)
-                                    try? context.save()
-                                } label: {
-                                    Image(systemName: "trash.fill")
-                                }
-                                .tint(.red)
-                                Button {
-                                    note.isDone.toggle()
-                                } label: {
-                                    Image(systemName: "xmark")
-                                }
-                                .tint(.gray)
-                            }
+                    // Section for Done Notes
+                    Section(header: Text("Done")) {
+                        ForEach(doneNotes, id: \.id) { note in
+                            NoteRowView(note: note, context: context)
                         }
                     }
                 }
@@ -94,44 +47,33 @@ struct NotesListView: View {
             }
             .sheet(isPresented: $isPresentingModal) {
                 AddItemModalView(newItem: $newItem, selectedCategory: $selectedCategory) {
-                    // Action to add new item to the list
-                    if !newItem.isEmpty && selectedCategory != nil {
+                    // Action to add a new item to the list
+                    if !newItem.isEmpty {
                         let note = Note(content: newItem, isDone: false)
-                        let category = Category(categoryType: selectedCategory!, belongsTo: note)
+                        let category = Category(categoryType: selectedCategory, belongsTo: note)
                         context.insert(category)
-                        newItem = ""
+                        
                         do {
                             try context.save()
                         } catch {
-                            print("Error on saving =\(error.localizedDescription)" )
+                            print("Error saving: \(error.localizedDescription)")
                         }
                     }
+                    newItem = ""
                     isPresentingModal = false
+                    selectedCategory = .work
                 }
             }
         }
     }
-    
-    func addItem(note: Note) {
-        context.insert(note)
-        do {
-            try context.save()
-        } catch {
-            print("Error on saving =\(error.localizedDescription)")
-        }
-    }
-    
-    func deletItem(note: Note) {
-        context.delete(note)
-        try? context.save()
-    }
 }
+
 
 struct AddItemModalView: View {
     @Binding var newItem: String
-    @Binding var selectedCategory: CategoryType?
+    @Binding var selectedCategory: CategoryType
     var onSave: () -> Void // Closure to handle save action
-
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -145,16 +87,16 @@ struct AddItemModalView: View {
                             .tag(category)
                     }
                 }
-                .pickerStyle(.wheel) // Style as desired
+                .pickerStyle(.wheel)
                 .padding()
                 
                 Spacer()
-                
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        onSave() // Calls the closure to add the item and dismiss
+                        newItem = ""
+                        onSave()
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {

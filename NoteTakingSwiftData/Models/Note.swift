@@ -13,7 +13,7 @@ import SwiftData
     var content: String
     var isDone: Bool
     var dateAdded: Date
-    var category: Category?
+    @Relationship(deleteRule: .cascade, inverse: \Category.belongsTo) var category: Category?
     
     init(content: String, isDone: Bool, dateAdded: Date = Date(), category: Category? = nil) {
         self.id = UUID()
