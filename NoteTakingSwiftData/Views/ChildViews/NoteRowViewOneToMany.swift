@@ -1,15 +1,16 @@
 //
-//  NoteRowView.swift
+//  NoteRowViewOneToMany.swift
 //  NoteTakingSwiftData
 //
-//  Created by Serhan Khan on 15/11/2024.
+//  Created by Serhan Khan on 16/11/2024.
 //
 
-import SwiftData
-import SwiftUI
 
-struct NoteRowView: View {
-    let note: Note
+import SwiftUI
+import SwiftData
+
+struct NoteRowViewOneToMany: View {
+    var note: NoteOneToMany
     let context: ModelContext
 
     var body: some View {
@@ -19,18 +20,20 @@ struct NoteRowView: View {
                 .font(.headline)
                 .lineLimit(2)
             
-            // Single category associated with the note
-            if let category = note.category?.categoryTypeRawValue {
+            // Categories associated with the note
+            if !note.categories.isEmpty {
                 HStack {
-                    Text("Category:")
+                    Text("Categories:")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     
-                    Text(category)
-                        .font(.subheadline)
-                        .padding(6)
-                        .background(Color.blue.opacity(0.2))
-                        .cornerRadius(8)
+                    ForEach(note.categories, id: \.id) { category in
+                        Text(category.categoryTypeRawValue)
+                            .font(.subheadline)
+                            .padding(6)
+                            .background(Color.blue.opacity(0.2))
+                            .cornerRadius(8)
+                    }
                 }
             }
             
@@ -46,7 +49,7 @@ struct NoteRowView: View {
                 Spacer()
                 
                 // Date and time of addition
-                Text(note.dateAdded, format: Date.FormatStyle
+                Text(note.dateTimeAdded, format: Date.FormatStyle
                     .dateTime
                     .day().month().year()
                     .hour().minute())
@@ -75,18 +78,18 @@ struct NoteRowView: View {
             }
         }
     }
-
+    
     // MARK: - Actions
     private func toggleStatus() {
         note.isDone.toggle()
         saveChanges()
     }
-
+    
     private func deleteNote() {
         context.delete(note)
         saveChanges()
     }
-
+    
     private func saveChanges() {
         do {
             try context.save()

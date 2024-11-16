@@ -13,12 +13,12 @@ import Foundation
     var content: String
     var isDone: Bool
     var dateTimeAdded: Date
-    @Relationship(deleteRule: .cascade, inverse: \CategoryOneToMany.belongsTo) var categories: [Category] = []
+    @Relationship(deleteRule: .cascade, inverse: \CategoryOneToMany.belongsTo) var categories: [CategoryOneToMany] = []
     
-    init(id: UUID, content: String, isDone: Bool, dateTimeAdded: Date) {
+    init(content: String, isDone: Bool, categories: [CategoryOneToMany] = []) {
         self.id = UUID()
         self.content = content
         self.isDone = isDone
-        self.dateTimeAdded = dateTimeAdded
+        self.dateTimeAdded = Date()
     }
 }

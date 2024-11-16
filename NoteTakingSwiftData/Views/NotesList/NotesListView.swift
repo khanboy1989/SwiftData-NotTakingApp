@@ -47,25 +47,33 @@ struct NotesListView: View {
             }
             .sheet(isPresented: $isPresentingModal) {
                 AddItemModalView(newItem: $newItem, selectedCategory: $selectedCategory, onSave: {
-                    // Action to add a new item to the list
-                    if !newItem.isEmpty {
-                        let note = Note(content: newItem, isDone: false)
-                        let category = Category(categoryType: selectedCategory, belongsTo: note)
-                        context.insert(category)
-                        do {
-                            try context.save()
-                        } catch {
-                            print("Error saving: \(error.localizedDescription)")
-                        }
-                    }
-                    newItem = ""
-                    isPresentingModal.toggle()
-                    selectedCategory = .work
+                    self.onSave()
                 }, onCancel: {
-                    isPresentingModal.toggle()
+                    self.onCancel()
                 })
             }
         }
+    }
+    
+    func onSave() {
+        // Action to add a new item to the list
+        if !newItem.isEmpty {
+            let note = Note(content: newItem, isDone: false)
+            let category = Category(categoryType: selectedCategory, belongsTo: note)
+            context.insert(category)
+            do {
+                try context.save()
+            } catch {
+                print("Error saving: \(error.localizedDescription)")
+            }
+        }
+        newItem = ""
+        isPresentingModal.toggle()
+        selectedCategory = .work
+    }
+    
+    func onCancel() {
+        isPresentingModal.toggle()
     }
 }
 
