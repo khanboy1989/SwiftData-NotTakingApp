@@ -17,7 +17,6 @@ struct NoteTakingSwiftDataApp: App {
             Category.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false /* For caching purposes, isStoredInMemoryOnly is useful when you want to avoid writing data to disk to reduce I/O operations or improve performance, especially for frequently accessed or temporary data. */)
-            
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {

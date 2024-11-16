@@ -21,7 +21,7 @@ enum CategoryType: String, CaseIterable, Identifiable {
     @Attribute(.unique) var id: UUID
     var categoryTypeRawValue: String    
     @Relationship var belongsTo: Note?
-
+    
     init(categoryType: CategoryType, belongsTo: Note? = nil) {
         self.id = UUID()
         self.belongsTo = belongsTo
