@@ -27,6 +27,7 @@ struct NotesListView: View {
                     Section(header: Text("To Do")) {
                         ForEach(todoNotes, id: \.id) { note in
                             NoteRowView(note: note, context: context)
+                                .listRowSeparator(.hidden)
                         }
                     }
                     
@@ -34,9 +35,12 @@ struct NotesListView: View {
                     Section(header: Text("Done")) {
                         ForEach(doneNotes, id: \.id) { note in
                             NoteRowView(note: note, context: context)
+                                .listRowSeparator(.hidden)
                         }
                     }
                 }
+                .scrollContentBackground(.hidden)
+                    .background(Color.clear)
             }.navigationTitle("Tasks List")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
