@@ -46,10 +46,7 @@ struct NoteRowView: View {
                 Spacer()
                 
                 // Date and time of addition
-                Text(note.dateAdded, format: Date.FormatStyle
-                    .dateTime
-                    .day().month().year()
-                    .hour().minute())
+                Text(note.formattedDate)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
