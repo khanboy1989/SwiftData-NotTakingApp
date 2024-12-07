@@ -5,28 +5,46 @@
 //  Created by Serhan Khan on 15/11/2024.
 //
 
-import SwiftData
+//
+//  NoteRowView.swift
+//  NoteTakingSwiftData
+//
+//  Created by Serhan Khan on 15/11/2024.
+//
+
 import SwiftUI
+import SwiftData
 
 struct NoteRowView: View {
-    let note: Note
-    let context: ModelContext
-
+    @Bindable var note: Note
+    var isEditMode: Bool
+    var onSelectionChanged: (Note) -> Void
+    var delete: (Note) -> Void
+    var onDone: (Note) -> Void
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Note content
-            Text(note.content)
-                .font(.headline)
-                .lineLimit(2)
+        HStack {
+            if isEditMode {
+                Image(systemName: note.isSelected ? "checkmark.circle.fill" : "circle")
+                    .foregroundColor(note.isSelected ? .blue : .gray)
+                    .onTapGesture {
+                        note.isSelected.toggle()
+                        onSelectionChanged(note)
+                    }
+            }
             
-            // Single category associated with the note
-            if let category = note.category?.categoryTypeRawValue {
-                HStack {
-                    Text("Category:")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    
-                    Text(category)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(note.content)
+                    .font(.headline)
+                    .strikethrough(note.isDone, color: .gray)
+                    .foregroundColor(note.isDone ? .gray : .primary)
+                
+                Text(note.formattedDate)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
+                if let category = note.category {
+                    Text(category.categoryTypeRawValue)
                         .font(.subheadline)
                         .padding(6)
                         .background(Color.blue.opacity(0.2))
@@ -34,61 +52,31 @@ struct NoteRowView: View {
                 }
             }
             
-            // Additional metadata
-            HStack {
-                // Status of the note
-                Text(note.isDone ? "Done" : "To Do")
-                    .font(.caption)
-                    .padding(4)
-                    .background(note.isDone ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
-                    .cornerRadius(4)
-                
-                Spacer()
-                
-                // Date and time of addition
-                Text(note.formattedDate)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            // Toggle Status Action
-            Button {
-                toggleStatus()
-            } label: {
-                Text(note.isDone ? "To Do" : "Done")
-            }
-            .tint(note.isDone ? .gray : .green)
+            Spacer()
             
-            // Delete Action
-            Button(role: .destructive) {
-                deleteNote()
-            } label: {
-                Label("Delete", systemImage: "trash")
+            if !isEditMode {
+                Button(action: {
+                    toggleDoneStatus()
+                }) {
+                    Image(systemName: note.isDone ? "checkmark.circle.fill" : "circle")
+                        .foregroundColor(note.isDone ? .green : .blue)
+                        
+                }.swipeActions(edge: .trailing) {
+                    Button(role: .destructive) {
+                        delete(note)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
             }
         }
+        .padding(.vertical, 4)
     }
-
-    // MARK: - Actions
-    private func toggleStatus() {
+    
+    // MARK: - Helper Method
+    
+    private func toggleDoneStatus() {
         note.isDone.toggle()
-        saveChanges()
-    }
-
-    private func deleteNote() {
-        context.delete(note)
-        saveChanges()
-    }
-
-    private func saveChanges() {
-        do {
-            try context.save()
-        } catch {
-            print("⚠️ Error saving changes: \(error.localizedDescription)")
-        }
+        onDone(note)
     }
 }

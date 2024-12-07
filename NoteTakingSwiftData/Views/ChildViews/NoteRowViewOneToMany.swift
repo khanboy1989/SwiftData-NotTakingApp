@@ -49,10 +49,8 @@ struct NoteRowViewOneToMany: View {
                 Spacer()
                 
                 // Date and time of addition
-                Text(note.dateTimeAdded, format: Date.FormatStyle
-                    .dateTime
-                    .day().month().year()
-                    .hour().minute())
+                // Date and time of addition
+                Text(note.dateTimeAddedFormatted)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }

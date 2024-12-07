@@ -20,6 +20,7 @@ import SwiftData
         dateAdded.formatDate()
     }
     
+    @Transient var isSelected: Bool = false
     
     init(content: String, isDone: Bool, dateAdded: Date = Date(), category: Category? = nil) {
         self.id = UUID()

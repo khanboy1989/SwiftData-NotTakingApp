@@ -15,6 +15,9 @@ import Foundation
     var dateTimeAdded: Date
     @Relationship(deleteRule: .cascade, inverse: \CategoryOneToMany.belongsTo) var categories: [CategoryOneToMany] = []
     
+    @Transient var dateTimeAddedFormatted: String {
+        return dateTimeAdded.formatDate()
+    }
     init(content: String, isDone: Bool, categories: [CategoryOneToMany] = []) {
         self.id = UUID()
         self.content = content
