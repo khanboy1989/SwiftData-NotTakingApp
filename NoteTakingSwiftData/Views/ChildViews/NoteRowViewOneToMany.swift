@@ -49,7 +49,6 @@ struct NoteRowViewOneToMany: View {
                 Spacer()
                 
                 // Date and time of addition
-                // Date and time of addition
                 Text(note.dateTimeAddedFormatted)
                     .font(.caption)
                     .foregroundColor(.secondary)

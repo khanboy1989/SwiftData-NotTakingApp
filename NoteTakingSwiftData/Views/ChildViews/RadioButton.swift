@@ -25,5 +25,4 @@ struct RadioButton: View {
             }.buttonStyle(.plain)
         }
     }
-    
 }
