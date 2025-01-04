@@ -78,9 +78,7 @@ struct NotesListView: View {
                         isEditMode.toggle()
                         if !isEditMode {
                             selectedNotes.removeAll()
-                            todoNotes.forEach {
-                                $0.isSelected = false
-                            }
+                            todoNotes.forEach { $0.isSelected = false }
                         }
                     }
                 }

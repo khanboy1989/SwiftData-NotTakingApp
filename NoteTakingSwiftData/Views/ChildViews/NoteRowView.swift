@@ -24,7 +24,7 @@ struct NoteRowView: View {
     
     var body: some View {
         HStack {
-            if isEditMode {
+            if isEditMode && !note.isDone {
                 Image(systemName: note.isSelected ? "checkmark.circle.fill" : "circle")
                     .foregroundColor(note.isSelected ? .blue : .gray)
                     .onTapGesture {
