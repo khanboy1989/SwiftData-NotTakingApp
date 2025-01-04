@@ -43,6 +43,27 @@ struct NotesListView: View {
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
+                
+                if isEditMode {
+                    HStack {
+                        Button(role: .destructive) {
+                            deleteSelectedNotes()
+                        } label: {
+                            Text("Delete Selected (\(selectedNotes.count))")
+                                .padding(.leading, 8)
+                        }
+                        .disabled(selectedNotes.isEmpty)
+                        if selectedNotes.first(where: { $0.isDone == false }) != nil {
+                            Button {
+                                markAsDoneSelectedNotes()
+                            } label: {
+                                Text("Mark As Done (\(selectedNotes.count))")
+                                    .foregroundStyle(.blue)
+                                    .padding(.trailing, 8)
+                            }
+                        }
+                    }
+                }
             }
             .navigationTitle("Tasks List")
             .toolbar {
@@ -55,27 +76,10 @@ struct NotesListView: View {
                 ToolbarItem {
                     Button(isEditMode ? "Done" : "Edit") {
                         isEditMode.toggle()
-                    }
-                }
-                
-                if isEditMode {
-                    ToolbarItem(placement: .bottomBar) {
-                        Button(role: .destructive) {
-                            deleteSelectedNotes()
-                        } label: {
-                            Text("Delete Selected (\(selectedNotes.count))")
-                                .padding(.leading, 8)
-                        }
-                        .disabled(selectedNotes.isEmpty)
-                    }
-                
-                    if selectedNotes.first(where: { $0.isDone == false }) != nil {
-                        ToolbarItem(placement: .bottomBar) {
-                            Button(role: .destructive) {
-                                markAsDoneSelectedNotes()
-                            } label: {
-                                Text("Mark As Done (\(selectedNotes.count)")
-                                    .padding(.trailing, 16)
+                        if !isEditMode {
+                            selectedNotes.removeAll()
+                            todoNotes.forEach {
+                                $0.isSelected = false
                             }
                         }
                     }
@@ -133,7 +137,7 @@ struct NotesListView: View {
             try context.save()
         } catch {
             print("Error saving changes: \(error.localizedDescription)")
-
+            
         }
     }
     
@@ -142,7 +146,7 @@ struct NotesListView: View {
             try context.save()
         } catch {
             print("Error saving changes: \(error.localizedDescription)")
-
+            
         }
     }
     
