@@ -5,13 +5,6 @@
 //  Created by Serhan Khan on 15/11/2024.
 //
 
-//
-//  NoteRowView.swift
-//  NoteTakingSwiftData
-//
-//  Created by Serhan Khan on 15/11/2024.
-//
-
 import SwiftUI
 import SwiftData
 

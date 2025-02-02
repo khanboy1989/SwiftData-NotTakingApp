@@ -94,7 +94,6 @@ struct NotesListView: View {
     }
     
     // MARK: - Helper Methods
-    
     private func handleSelectionChanged(note: Note) {
         withAnimation {
             if note.isSelected {
@@ -144,7 +143,6 @@ struct NotesListView: View {
             try context.save()
         } catch {
             print("Error saving changes: \(error.localizedDescription)")
-            
         }
     }
     
