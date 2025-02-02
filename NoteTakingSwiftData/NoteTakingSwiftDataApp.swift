@@ -28,8 +28,9 @@ struct NoteTakingSwiftDataApp: App {
 
     var body: some Scene {
         WindowGroup {
-//            NoteListOneToMNotenyView()
-            NotesListView()
+            //            NoteListOneToMNotenyView()
+            //            NotesListView()
+            NoteListViewWithReusableItemView()
         }
         .modelContainer(sharedModelContainer)
     }
