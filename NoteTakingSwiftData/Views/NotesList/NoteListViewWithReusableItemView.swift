@@ -21,7 +21,6 @@ struct NoteListViewWithReusableItemView: View {
     private enum AlertType {
         case error
         case success
-        
         var message: String {
             switch self {
             case .success: return "Operation completed successfully."
@@ -39,11 +38,18 @@ struct NoteListViewWithReusableItemView: View {
                             ListItemView(title: note.content,
                                          subtitle: note.formattedDate,
                                          category: note.category?.categoryTypeRawValue,
-                                         isDone: note.isDone, isSelected: note.isSelected,
-                                         isEditMode: isEditMode,
-                                         onSelectionChanged: {
-                                handleOnSelectionChanged(note)
-                            }, onDelete: {
+                                         isDone: note.isDone,
+                                         isSelected: Binding(get: {
+                                selectedNotes.contains(note)
+                            }, set: { newValue in
+                                if newValue {
+                                    selectedNotes.insert(note)
+                                } else {
+                                    selectedNotes.remove(note)
+                                }
+                            }),
+                            isEditMode: isEditMode,
+                            onDelete: {
                                 handleDeleteNote(note)
                             }, onDone: {
                                 handleOnDone(note)
@@ -57,10 +63,19 @@ struct NoteListViewWithReusableItemView: View {
                         ForEach(doneNotes, id: \.id) { note in
                             ListItemView(title: note.content, subtitle: note.formattedDate,
                                          category: note.category?.categoryTypeRawValue,
-                                         isDone: note.isDone, isSelected: note.isSelected, isEditMode: isEditMode,
-                                         onSelectionChanged: {
-                                handleOnSelectionChanged(note)
-                            }, onDelete: {
+                                         isDone: note.isDone,
+                                         isSelected:
+                                            Binding(get: {
+                                selectedNotes.contains(note)
+                            }, set: { newValue in
+                                if newValue {
+                                    selectedNotes.insert(note)
+                                } else {
+                                    selectedNotes.remove(note)
+                                }
+                            }),
+                            isEditMode: isEditMode,
+                            onDelete: {
                                 handleDeleteNote(note)
                             }, onDone: {
                                 handleOnDone(note)
@@ -139,22 +154,10 @@ struct NoteListViewWithReusableItemView: View {
         }
     }
     
-    private func handleOnSelectionChanged(_ note: Note) {
-        withAnimation {
-            if note.isSelected {
-                selectedNotes.insert(note)
-            } else {
-                selectedNotes.remove(note)
-            }
-            note.isSelected = selectedNotes.contains(note)
-        }
-    }
-    
     private func handleOnDone(_ note: Note) {
         note.isDone.toggle()
         do {
             try context.save()
-            showAlert(.success)
         } catch {
             showAlert(.error)
         }
@@ -184,6 +187,7 @@ struct NoteListViewWithReusableItemView: View {
         selectedNotes.removeAll()
         do {
             try context.save()
+            self.showAlert(.success)
         } catch {
             showAlert(.error)
         }
@@ -195,6 +199,7 @@ struct NoteListViewWithReusableItemView: View {
         }
         do {
             try context.save()
+            self.showAlert(.success)
         } catch {
             self.showAlert(.error)
         }

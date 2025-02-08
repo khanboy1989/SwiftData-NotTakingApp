@@ -13,11 +13,10 @@ struct ListItemView: View {
     let subtitle: String
     let category: String?
     var isDone: Bool
-    var isSelected: Bool
+    @Binding var isSelected: Bool
     var isEditMode: Bool
     
     // Closures
-    var onSelectionChanged: () -> Void
     var onDelete: () -> Void
     var onDone: () -> Void
     
@@ -27,7 +26,7 @@ struct ListItemView: View {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .foregroundColor(isSelected ? .blue : .gray)
                     .onTapGesture {
-                        onSelectionChanged()
+                        isSelected.toggle()
                     }
             }
             
